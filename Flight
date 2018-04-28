@@ -1,0 +1,160 @@
+flightdete.jsp
+~~~~~~~~~~~~~~~~~~~
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<form action="flidet.jsp" method="post">
+		<p>Enter the day for flight details</p>
+		<input type="text" name="fdate" size="10" /> <input type="submit"
+			value="Click" />
+	</form>
+</body>
+</html>
+~~~~~~~~~~~~~~~~~~~
+flidet.jsp
+~~~~~~~~~~~~~~~~~~~
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<%
+		String fldate = request.getParameter("fdate");
+		String url = "jdbc:mysql://localhost/flight";
+		String user = "root";
+		String password = "";
+		Connection connection = null;
+		Statement stmt;
+		try 
+		{
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			out.println("hi, Flight details=");
+			connection = DriverManager.getConnection(url, user, password);
+			if (connection != null) 
+			{
+				stmt = connection.createStatement();
+				String query = " select * from Flight where Weekdays='"
+						+ fldate + "'";
+				ResultSet re = stmt.executeQuery(query);
+				while (re.next()) 
+				{
+					out.println(re.getString("Flight_Number") + "\n"
+							+ re.getString("Airline_Name") + "\n"
+							+ re.getString("Weekdays") + "\n");
+				}
+			} 
+			else
+				out.println("Connection refused");
+		} 
+		catch (Exception e) 
+		{
+			out.println(e.getMessage());
+		}
+	%>
+</body>
+</html>
+~~~~~~~~~~~~~~~~~~~
+ReserveOnline.jsp
+~~~~~~~~~~~~~~~~~~~
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+	<%
+		out.println("<B><FONT COLOR = Blue>");
+		out.println("Welcome </FONT></B>");
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		//Date datess = new Date();
+		out.println("<BR><FONT COLOR = Green>");
+		//out.println("Today is </FONT>"+dateFormat.format(datess));
+	%>
+	<form action="ViewDetails.jsp" method="post">
+		<FONT COLOR="Magenta"> Flight Number:</FONT> <input type="text"
+			size="15" name="fname"> <br> <FONT COLOR="Brown">Date:
+		</FONT> <input type="text" size="15" name="date"> <br> <FONT
+			COLOR="Brown">Customer Name: </FONT> <input type="text" size="15"
+			name="custname"> <br> <FONT COLOR="Brown">Customer
+			Number: </FONT> <input type="text" size="15" name="custno"> <br>
+		<input type="submit" value="Submit form">
+	</form>
+</body>
+</html>
+~~~~~~~~~~~~~~~~~~~
+ViewDetails.jsp
+~~~~~~~~~~~~~~~~~~~
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<%
+		String fno1 = request.getParameter("fname");
+		int fno = Integer.parseInt(fno1);
+		String datea = request.getParameter("date");
+		Random rand = new Random();
+		int s = rand.nextInt(500);
+		String seat = Integer.toString(s);
+		String custname = request.getParameter("custname");
+		String custno = request.getParameter("custno");
+		int fno2 = Integer.parseInt(custno);
+	%>
+
+	<%
+		String url = "jdbc:mysql://localhost/flight";
+		String user = "root";
+		String password = "";
+		Connection connection = null;
+		//boolean flag=false;
+		String query2;
+		boolean h = false;
+		Statement stmt;
+		try 
+		{
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			connection = DriverManager.getConnection(url, user, password);
+			if (connection != null)
+			{
+				out.println("Connection created");
+				stmt = connection.createStatement();
+				query2 = "select * from Flight where Flight_Number='" + fno
+						+ "'";
+				ResultSet rs = stmt.executeQuery(query2);
+				while (rs.next())
+				{
+					h = true;
+				}
+				if (h) 
+				{
+					out.println("Flight Number:" + fno + "\nDate:" + datea
+							+ "\nSeatNumber:" + seat + "\nCustomerName:"
+							+ custname + "\nCustNumber:" + custno);
+					String query = "insert into SeatReservation values('"
+							+ fno + "','" + datea + "','" + seat + "','"
+							+ custname + "','" + custno + "');";
+					stmt.executeUpdate(query);
+					out.println("\nDetails inserted");
+				} 
+				else 
+				{
+					out.println("flight number doesnot exist");
+				}
+			} 
+			else
+				out.println("Connection refused");
+		} 
+		catch (Exception e)
+		{
+			out.println(e.getMessage());
+		}
+	%>
+	<p>
+		click for flight details <a href="flightdete.jsp">here</a>
+</body>
+</html>
